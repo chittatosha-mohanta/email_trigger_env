@@ -9,7 +9,7 @@ import json
 import uuid
 from typing import Optional
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Body
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
@@ -104,7 +104,7 @@ async def health():
 
 
 @app.post("/reset")
-async def reset(request: Optional[ResetRequest] = None):
+async def reset(request: Optional[ResetRequest] = Body(None)):
     request = request or ResetRequest()
     """Reset the environment and start a new episode."""
     session_id = request.session_id or str(uuid.uuid4())
@@ -120,7 +120,7 @@ async def reset(request: Optional[ResetRequest] = None):
 
 
 @app.post("/step")
-async def step(request: Optional[StepRequest] = None):
+async def step(request: Optional[StepRequest] = Body(None)):
     request = request or StepRequest()
     """Take a step in the environment."""
     session_id = request.session_id or "default"
@@ -138,7 +138,7 @@ async def step(request: Optional[StepRequest] = None):
 
 
 @app.post("/state")
-async def get_state(request: Optional[StateRequest] = None):
+async def get_state(request: Optional[StateRequest] = Body(None)):
     request = request or StateRequest()
     """Get the current state of the environment."""
     session_id = request.session_id or "default"

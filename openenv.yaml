@@ -9,13 +9,13 @@ author: chittatosha-mohanta
 license: MIT
 
 environment:
-  class: email_triage_env.server.environment.EmailTriageEnvironment
+  class: server.environment.EmailTriageEnvironment
   supports_concurrent_sessions: true
 
 models:
-  action: email_triage_env.models.EmailTriageAction
-  observation: email_triage_env.models.EmailTriageObservation
-  state: email_triage_env.models.EmailTriageState
+  action: models.EmailTriageAction
+  observation: models.EmailTriageObservation
+  state: models.EmailTriageState
 
 tasks:
   - id: 1
