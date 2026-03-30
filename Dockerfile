@@ -12,5 +12,5 @@ COPY . .
 # Expose port (7860 for HF Spaces)
 EXPOSE 7860
 
-# Run the server
-CMD ["uvicorn", "email_triage_env.server.app:app", "--host", "0.0.0.0", "--port", "7860"]
+# Run the FastAPI app
+CMD ["uvicorn", "server.app:app", "--host", "0.0.0.0", "--port", "7860"]

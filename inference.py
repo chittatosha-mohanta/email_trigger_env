@@ -22,8 +22,8 @@ from typing import List, Dict
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from email_triage_env.models import EmailTriageAction, EmailTriageObservation
-from email_triage_env.server.environment import EmailTriageEnvironment
+from models import EmailTriageAction, EmailTriageObservation
+from server.environment import EmailTriageEnvironment
 
 try:
     from openai import OpenAI
