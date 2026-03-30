@@ -17,7 +17,7 @@ import math
 from typing import List, Dict, Optional, Set
 
 
-from ..models import EmailTriageAction, EmailTriageObservation, EmailTriageState
+from models import EmailTriageAction, EmailTriageObservation, EmailTriageState
 
 
 # ---------------------------------------------------------------------------
