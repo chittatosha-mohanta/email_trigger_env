@@ -1,0 +1,50 @@
+name: email_triage_env
+version: "1.0.0"
+description: >
+  An OpenEnv environment for email triage. The agent must categorize,
+  prioritize, and draft responses to emails in a simulated inbox.
+  Real-world task simulation with 3 difficulty levels.
+
+author: chittatosha-mohanta
+license: MIT
+
+environment:
+  class: email_triage_env.server.environment.EmailTriageEnvironment
+  supports_concurrent_sessions: true
+
+models:
+  action: email_triage_env.models.EmailTriageAction
+  observation: email_triage_env.models.EmailTriageObservation
+  state: email_triage_env.models.EmailTriageState
+
+tasks:
+  - id: 1
+    name: "Easy — Single Email Categorization"
+    description: "Categorize 5 clearly-labeled emails into the correct category."
+    difficulty: easy
+    num_emails: 5
+    grading: [category]
+
+  - id: 2
+    name: "Medium — Categorize & Prioritize"
+    description: "Categorize AND assign priority for 10 emails including ambiguous ones."
+    difficulty: medium
+    num_emails: 10
+    grading: [category, priority]
+
+  - id: 3
+    name: "Hard — Full Triage with Responses"
+    description: "Full triage: categorize, prioritize, AND draft responses for 15 emails."
+    difficulty: hard
+    num_emails: 15
+    grading: [category, priority, response]
+
+server:
+  port: 7860
+  dockerfile: Dockerfile
+
+tags:
+  - openenv
+  - email-triage
+  - nlp
+  - real-world

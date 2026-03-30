@@ -104,7 +104,8 @@ async def health():
 
 
 @app.post("/reset")
-async def reset(request: ResetRequest):
+async def reset(request: Optional[ResetRequest] = None):
+    request = request or ResetRequest()
     """Reset the environment and start a new episode."""
     session_id = request.session_id or str(uuid.uuid4())
     env = _get_or_create_env(session_id)
@@ -119,7 +120,8 @@ async def reset(request: ResetRequest):
 
 
 @app.post("/step")
-async def step(request: StepRequest):
+async def step(request: Optional[StepRequest] = None):
+    request = request or StepRequest()
     """Take a step in the environment."""
     session_id = request.session_id or "default"
     env = _get_or_create_env(session_id)
@@ -136,7 +138,8 @@ async def step(request: StepRequest):
 
 
 @app.post("/state")
-async def get_state(request: StateRequest):
+async def get_state(request: Optional[StateRequest] = None):
+    request = request or StateRequest()
     """Get the current state of the environment."""
     session_id = request.session_id or "default"
     env = _get_or_create_env(session_id)
