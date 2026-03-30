@@ -14,7 +14,7 @@ dependencies = [
 ]
 
 [project.scripts]
-server = "email_triage_env.server.app:run_server"
+server = "server.app:main"
 
 [project.optional-dependencies]
 dev = [
@@ -28,3 +28,7 @@ baseline = [
 [build-system]
 requires = ["setuptools>=68.0", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["server"]
+py-modules = ["models", "client", "inference"]
