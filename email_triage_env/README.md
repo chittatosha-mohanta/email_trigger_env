@@ -1,3 +1,12 @@
+---
+title: Email Triage Env
+emoji: 📧
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+app_port: 7860
+---
+
 # 📧 Email Triage — OpenEnv Environment
 
 An OpenEnv reinforcement learning environment that simulates **real-world email triage**. An AI agent must categorize incoming emails, assign priority levels, and draft appropriate responses — a task humans perform daily.
