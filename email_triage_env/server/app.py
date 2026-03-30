@@ -192,3 +192,12 @@ async def websocket_endpoint(websocket: WebSocket):
     except WebSocketDisconnect:
         if session_id in _sessions:
             del _sessions[session_id]
+
+def run_server():
+    import uvicorn
+    import os
+    port = int(os.environ.get("PORT", "8000"))
+    uvicorn.run("email_triage_env.server.app:app", host="0.0.0.0", port=port)
+
+if __name__ == "__main__":
+    run_server()
