@@ -20,6 +20,13 @@ from typing import List, Dict, Optional, Set
 from models import EmailTriageAction, EmailTriageObservation, EmailTriageState
 
 
+def _clamp(val: float) -> float:
+    """Clamp score strictly between 0 and 1 (0.0001 to 0.9999)."""
+    if val is None:
+        return 0.0001
+    return max(0.0001, min(0.9999, float(val)))
+
+
 # ---------------------------------------------------------------------------
 # Synthetic email data (realistic workplace / personal emails)
 # ---------------------------------------------------------------------------
@@ -628,7 +635,7 @@ class EmailTriageEnvironment:
             task_id=task_id,
             inbox_remaining=len(self._emails),
             total_emails=len(self._emails),
-            score_so_far=0.0,
+            score_so_far=_clamp(0.0),
             feedback=f"Welcome! {self._task_config['name']}. You have {len(self._emails)} emails to process.",
         )
 
@@ -748,7 +755,7 @@ class EmailTriageEnvironment:
             feedback += f" | 🏁 Episode complete! Final score: {final_score:.3f}"
             return EmailTriageObservation(
                 done=True,
-                reward=round(final_score, 4),
+                reward=_clamp(final_score),
                 email_id=email["id"],
                 email_subject=email["subject"],
                 email_from=email["from"],
@@ -758,7 +765,7 @@ class EmailTriageEnvironment:
                 task_id=self._state.task_id,
                 inbox_remaining=0,
                 total_emails=self._state.total_emails,
-                score_so_far=round(final_score, 4),
+                score_so_far=_clamp(final_score),
                 feedback=feedback,
             )
 
@@ -782,7 +789,7 @@ class EmailTriageEnvironment:
 
         return EmailTriageObservation(
             done=False,
-            reward=round(step_reward, 4),
+            reward=_clamp(step_reward),
             email_id=next_email["id"],
             email_subject=next_email["subject"],
             email_from=next_email["from"],
@@ -792,7 +799,7 @@ class EmailTriageEnvironment:
             task_id=self._state.task_id,
             inbox_remaining=len(self._emails) - self._current_idx,
             total_emails=self._state.total_emails,
-            score_so_far=round(running_score, 4),
+            score_so_far=_clamp(running_score),
             feedback=feedback,
         )
 
@@ -817,6 +824,6 @@ class EmailTriageEnvironment:
             task_id=self._state.task_id,
             inbox_remaining=0,
             total_emails=self._state.total_emails,
-            score_so_far=round(final_score, 4),
+            score_so_far=_clamp(final_score),
             feedback=message,
         )
