@@ -107,8 +107,6 @@ def run_task(client: OpenAI, task_id: str, model_name: str, env_base_url: str, m
                     if attempt < 2:
                         time.sleep(1)
                         continue
-                    # Final failure
-                    print(f"[END] success=false steps=0 rewards=0.00")
                     return
 
             if not reset_resp:
