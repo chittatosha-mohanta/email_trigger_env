@@ -1,68 +1,55 @@
-from app.environment import SupportTriageEnv
-from app.models import SupportAction
-from app.tasks import TASKS, grade_action
+import pytest
+from server.environment import EmailTriageEnvironment
+from models import EmailTriageAction
 
+def test_environment_lifecycle():
+    """Test the basic lifecycle of the Email Triage environment."""
+    env = EmailTriageEnvironment()
+    
+    # Test reset (Task 1: Easy)
+    obs = env.reset(task_id=1)
+    assert obs.task_id == 1
+    assert obs.email_id == "e001"
+    assert "Easy" in obs.feedback
+    assert obs.done is False
 
-def test_grade_action_score_range_all_tasks() -> None:
-    for task_id in TASKS.keys():
-        action = SupportAction(
-            ticket_id=TASKS[task_id]["ticket"].id,
-            priority="high",
-            team="billing",
-            tags=[],
-            escalate=False,
-            resolve=False,
-            response_text="sorry we will investigate within 24 hours",
-            note="test",
+    # Test step
+    action = EmailTriageAction(
+        action_type="triage",
+        category="spam",
+        priority=1,
+        response_draft=""
+    )
+    res = env.step(action)
+    
+    # Verify progression
+    assert res.reward > 0  # Should get some reward for correct spam categorization
+    assert res.inbox_remaining < obs.inbox_remaining
+    assert res.done is False
+
+def test_environment_completion():
+    """Test running a task to completion."""
+    env = EmailTriageEnvironment()
+    obs = env.reset(task_id=1)
+    
+    # Task 1 has 5 emails
+    for _ in range(5):
+        action = EmailTriageAction(
+            action_type="triage",
+            category="spam",
+            priority=1,
+            response_draft=""
         )
-        score, details, _ = grade_action(task_id, action)
-        assert 0.0 <= score <= 1.0
-        for v in details.values():
-            assert 0.0 <= v <= 1.0
+        res = env.step(action)
+        if res.done:
+            break
+            
+    assert res.done is True
+    assert "Final score" in res.feedback
 
-
-def test_reset_step_state_determinism() -> None:
-    env = SupportTriageEnv()
-    obs1 = env.reset("easy_priority_routing").observation
-    state1 = env.state()
-    assert obs1.task_id == "easy_priority_routing"
-    assert state1.task.id == "easy_priority_routing"
-
-    action = SupportAction(
-        ticket_id=obs1.active_ticket.id,
-        priority="high",
-        team="billing",
-        tags=["refund_check"],
-        escalate=False,
-        resolve=False,
-        response_text="Sorry, we will investigate and reply within 24 hours.",
-        note="triage",
-    )
-    res1 = env.step(action)
-
-    env2 = SupportTriageEnv()
-    obs2 = env2.reset("easy_priority_routing").observation
-    res2 = env2.step(action.model_copy(update={"ticket_id": obs2.active_ticket.id}))
-
-    assert res1.info.grader_score == res2.info.grader_score
-    assert res1.done == res2.done
-
-
-def test_step_requires_reset() -> None:
-    env = SupportTriageEnv()
-    action = SupportAction(
-        ticket_id="TKT-1001",
-        priority="high",
-        team="billing",
-        tags=["refund_check"],
-        escalate=False,
-        resolve=False,
-        response_text="Sorry, we will investigate and reply within 24 hours.",
-        note="triage",
-    )
-    try:
-        env.step(action)
-        assert False, "Expected RuntimeError"
-    except RuntimeError as exc:
-        assert "Call reset() first" in str(exc)
-
+def test_invalid_task_id():
+    """Test reset with an out-of-range task ID."""
+    env = EmailTriageEnvironment()
+    # Should clamp to task 1 or 3
+    obs = env.reset(task_id=99)
+    assert obs.task_id == 3 
