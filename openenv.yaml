@@ -9,7 +9,7 @@ author: chittatosha-mohanta
 license: MIT
 
 environment:
-  class: environment.EmailTriageEnvironment
+  class: server.environment.EmailTriageEnvironment
   supports_concurrent_sessions: true
 
 models:

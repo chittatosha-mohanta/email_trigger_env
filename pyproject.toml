@@ -7,7 +7,7 @@ name = "email_triage_env"
 version = "1.0.0"
 description = "An OpenEnv environment for email triage."
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 authors = [
     { name = "chittatosha-mohanta" }
 ]
@@ -22,5 +22,13 @@ dependencies = [
     "httpx>=0.24.0",
 ]
 
+[project.scripts]
+server = "server.app:main"
+
 [tool.setuptools]
-packages = ["."]
+packages = ["server"]
+py-modules = ["models"]
+
+[tool.uv]
+managed = true
+package = true
