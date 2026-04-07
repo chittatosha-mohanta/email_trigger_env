@@ -23,6 +23,7 @@ jobs:
           . .venv/bin/activate
           python -m pip install -U pip
           pip install -r requirements.txt
+          pip install pytest
 
       - name: Run local validator
         env:
