@@ -14,7 +14,7 @@ if [ -x "$ROOT_DIR/.venv/bin/python" ]; then
   PY="$ROOT_DIR/.venv/bin/python"
 fi
 
-"$PY" -m compileall app inference.py >/dev/null
+"$PY" -m compileall server inference.py >/dev/null
 
 echo "==> Running tests"
 "$PY" -m pytest -q
@@ -24,7 +24,7 @@ LOG_DIR="$ROOT_DIR/.tmp"
 mkdir -p "$LOG_DIR"
 SERVER_LOG="$LOG_DIR/server.log"
 
-"$PY" -m uvicorn app.server:app --host "$HOST" --port "$PORT" >"$SERVER_LOG" 2>&1 &
+"$PY" -m uvicorn server.app:app --host "$HOST" --port "$PORT" >"$SERVER_LOG" 2>&1 &
 SERVER_PID="$!"
 
 cleanup() {
@@ -42,7 +42,7 @@ done
 curl -fsS "${BASE_URL}/health" >/dev/null
 
 echo "==> Smoke: reset endpoint"
-curl -fsS -X POST "${BASE_URL}/reset" -H 'content-type: application/json' -d '{"task_id":"easy_priority_routing"}' >/dev/null
+curl -fsS -X POST "${BASE_URL}/reset" -H 'content-type: application/json' -d '{"task_id": 1}' >/dev/null
 
 echo "==> Running inference baseline (fallback if no API key)"
 ENV_BASE_URL="$BASE_URL" "$PY" inference.py
@@ -54,13 +54,13 @@ if ! command -v docker >/dev/null 2>&1; then
   exit 0
 fi
 
-docker build -t support-triage-openenv:local .
+docker build -t email-triage-openenv:local .
 
 echo "==> Docker run smoke"
-docker run --rm -d -p 17860:7860 --name support-triage-openenv-local support-triage-openenv:local >/dev/null
+docker run --rm -d -p 17860:7860 --name email-triage-openenv-local email-triage-openenv:local >/dev/null
 sleep 1
 curl -fsS "http://127.0.0.1:17860/health" >/dev/null
-docker rm -f support-triage-openenv-local >/dev/null
+docker rm -f email-triage-openenv-local >/dev/null
 
 echo "==> OK: local validation passed"
 
