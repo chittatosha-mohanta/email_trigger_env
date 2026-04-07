@@ -1,3 +1,10 @@
+import sys
+import os
+from pathlib import Path
+
+# Add root directory to sys.path to resolve server and models
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 import pytest
 from server.environment import EmailTriageEnvironment
 from models import EmailTriageAction
