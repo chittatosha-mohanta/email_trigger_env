@@ -96,8 +96,8 @@ class StateRequest(BaseModel):
 
 @app.get("/")
 async def root():
-    """Root endpoint, redirects to API docs."""
-    return RedirectResponse(url="/docs")
+    """Root endpoint for health checks."""
+    return {"status": "ok", "message": "Email Triage Environment is running"}
 
 
 @app.get("/health")
