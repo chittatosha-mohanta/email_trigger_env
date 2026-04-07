@@ -1,0 +1,31 @@
+name: support-triage-openenv
+version: 0.1.0
+description: OpenEnv environment for real-world customer support triage.
+tags:
+  - openenv
+  - customer-support
+  - triage
+entrypoint:
+  type: http
+  base_url: http://127.0.0.1:7860
+api:
+  reset:
+    method: POST
+    path: /reset
+  step:
+    method: POST
+    path: /step
+  state:
+    method: GET
+    path: /state
+tasks:
+  - id: easy_priority_routing
+    difficulty: easy
+  - id: medium_policy_escalation
+    difficulty: medium
+  - id: hard_multi_constraint_resolution
+    difficulty: hard
+models:
+  observation: app.models.SupportObservation
+  action: app.models.SupportAction
+  reward: app.models.SupportReward
