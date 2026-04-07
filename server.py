@@ -13,11 +13,8 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Body
 from fastapi.responses import JSONResponse, RedirectResponse
 from pydantic import BaseModel
 
-# Ensure parent is importable
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 from models import EmailTriageAction, EmailTriageObservation, EmailTriageState
-from server.environment import EmailTriageEnvironment
+from environment import EmailTriageEnvironment
 
 
 # ---------------------------------------------------------------------------

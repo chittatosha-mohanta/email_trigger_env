@@ -11,11 +11,15 @@ RUN apt-get update && \
 
 WORKDIR /app
 
-COPY requirements.txt /app/requirements.txt
-RUN pip install --no-cache-dir -r /app/requirements.txt
+# Install dependencies first (cache layer)
+COPY requirements.txt ./requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . /app
+# Copy the entire project
+COPY . .
 
+# Expose port (7860 for HF Spaces)
 EXPOSE 7860
 
-CMD ["uvicorn", "app.server:app", "--host", "0.0.0.0", "--port", "7860"]
+# Run the FastAPI app
+CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "7860"]
