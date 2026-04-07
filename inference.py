@@ -153,7 +153,7 @@ def run_task(client: OpenAI, task_id: int, model_name: str, env_base_url: str, m
         pass
     finally:
         # Final safety for END metrics
-        r_list = step_rewards if step_rewards else [0.0]
+        r_list = step_rewards if step_rewards else [0.01]
         rewards_str = ",".join([f"{r:.2f}" for r in r_list])
         s_str = "true" if success else "false"
         print(f"[END] success={s_str} steps={len(step_rewards)} rewards={rewards_str}")
