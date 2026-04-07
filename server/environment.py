@@ -818,7 +818,7 @@ class EmailTriageEnvironment:
         final_score = sum(self._step_rewards) / total_possible if total_possible > 0 else 0.0
         return EmailTriageObservation(
             done=True,
-            reward=round(final_score, 4),
+            reward=_clamp(final_score),
             email_id="",
             email_subject="",
             email_from="",
