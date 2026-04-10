@@ -25,14 +25,10 @@ from models import EmailTriageAction, EmailTriageObservation, EmailTriageState
 
 
 def _clamp(val: float) -> float:
-    """Clamp and linearly map score from [0, 1] to strictly between 0 and 1 (0.1 to 0.9)."""
+    """Clamp score strictly between 0 and 1 (0.0001 to 0.9999)."""
     if val is None:
-        return 0.1
-    v = float(val)
-    # Ensure v is in [0, 1] before mapping
-    v = max(0.0, min(1.0, v))
-    # Linearly map [0, 1] to [0.1, 0.9]
-    return 0.1 + (v * 0.8)
+        return 0.0001
+    return max(0.0001, min(0.9999, float(val)))
 
 
 # ---------------------------------------------------------------------------
@@ -633,7 +629,7 @@ class EmailTriageEnvironment:
 
         return EmailTriageObservation(
             done=False,
-            reward=None,
+            reward=0.0001,
             email_id=email["id"],
             email_subject=email["subject"],
             email_from=email["from"],
@@ -745,6 +741,10 @@ class EmailTriageEnvironment:
         self._state.processed_emails += 1
         self._current_idx += 1
 
+        # DISTRIBUTED REWARDS: Ensure the SUM of rewards over N steps is bounded by 0.8
+        total_emails = max(len(self._emails), 1)
+        distributed_reward = (step_reward * 0.8) / total_emails
+
         # Calculate running score
         max_possible_per_step = 1.0
         total_possible = max_possible_per_step * self._state.processed_emails
@@ -758,14 +758,11 @@ class EmailTriageEnvironment:
         if done:
             total_possible_all = max_possible_per_step * len(self._emails)
             raw_final_score = sum(self._step_rewards) / total_possible_all if total_possible_all > 0 else 0.0
-            if raw_final_score > 0.7:
-                raw_final_score = min(raw_final_score + 0.05, 1.0)
-            
             final_score = _clamp(raw_final_score)
             feedback += f" | 🏁 Episode complete! Final score: {final_score:.3f}"
             return EmailTriageObservation(
                 done=True,
-                reward=final_score,
+                reward=_clamp(distributed_reward),
                 email_id=email["id"],
                 email_subject=email["subject"],
                 email_from=email["from"],
@@ -799,7 +796,7 @@ class EmailTriageEnvironment:
 
         return EmailTriageObservation(
             done=False,
-            reward=_clamp(step_reward),
+            reward=_clamp(distributed_reward),
             email_id=next_email["id"],
             email_subject=next_email["subject"],
             email_from=next_email["from"],
@@ -825,7 +822,7 @@ class EmailTriageEnvironment:
         final_score = _clamp(raw_final_score)
         return EmailTriageObservation(
             done=True,
-            reward=final_score,
+            reward=0.001,
             email_id="",
             email_subject="",
             email_from="",
