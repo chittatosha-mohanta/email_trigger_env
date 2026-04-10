@@ -121,7 +121,7 @@ def run_task(client: OpenAI, task_id: int, model_name: str, env_base_url: str, m
                     pass
 
                 step_error = "null"
-                reward = 0.0
+                reward = 0.01
                 try:
                     step_resp = http.post(f"{env_base_url}/step", json={
                         "action_type": action_data.get("action_type", "triage"),
@@ -133,7 +133,11 @@ def run_task(client: OpenAI, task_id: int, model_name: str, env_base_url: str, m
                     step_resp.raise_for_status()
                     payload = step_resp.json() or {}
                     observation = payload.get("observation", {})
-                    reward = float(payload.get("reward", 0.0))
+                    # Ensure reward is strictly between 0 and 1 (0.01 to 0.99)
+                    env_reward = payload.get("reward", 0.01)
+                    if env_reward is None:
+                        env_reward = 0.01
+                    reward = max(0.01, min(0.99, float(env_reward)))
                     done = bool(payload.get("done", False))
                 except Exception as e:
                     step_error = str(e).replace('\n', ' ').replace('"', "'")
@@ -179,7 +183,7 @@ def main() -> None:
         except Exception:
             # Satisfy start/end if init fails
             print(f"[START] task=1 env=email_triage_env model={model_name}")
-            print(f"[END] success=false steps=0 rewards=0.00")
+            print(f"[END] success=false steps=0 rewards=0.01")
             return
 
         # Email Triage Tasks are 1, 2, 3

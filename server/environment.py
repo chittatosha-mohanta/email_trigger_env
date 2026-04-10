@@ -753,13 +753,15 @@ class EmailTriageEnvironment:
 
         if done:
             total_possible_all = max_possible_per_step * len(self._emails)
-            final_score = sum(self._step_rewards) / total_possible_all if total_possible_all > 0 else 0.0
-            if final_score > 0.7:
-                final_score = min(final_score + 0.05, 1.0)
+            raw_final_score = sum(self._step_rewards) / total_possible_all if total_possible_all > 0 else 0.0
+            if raw_final_score > 0.7:
+                raw_final_score = min(raw_final_score + 0.05, 1.0)
+            
+            final_score = _clamp(raw_final_score)
             feedback += f" | 🏁 Episode complete! Final score: {final_score:.3f}"
             return EmailTriageObservation(
                 done=True,
-                reward=_clamp(final_score),
+                reward=final_score,
                 email_id=email["id"],
                 email_subject=email["subject"],
                 email_from=email["from"],
@@ -769,7 +771,7 @@ class EmailTriageEnvironment:
                 task_id=self._state.task_id,
                 inbox_remaining=0,
                 total_emails=self._state.total_emails,
-                score_so_far=_clamp(final_score),
+                score_so_far=final_score,
                 feedback=feedback,
             )
 
@@ -815,10 +817,11 @@ class EmailTriageEnvironment:
     def _make_final_observation(self, message: str) -> EmailTriageObservation:
         """Create an observation for an already-finished episode."""
         total_possible = len(self._emails)
-        final_score = sum(self._step_rewards) / total_possible if total_possible > 0 else 0.0
+        raw_final_score = sum(self._step_rewards) / total_possible if total_possible > 0 else 0.0
+        final_score = _clamp(raw_final_score)
         return EmailTriageObservation(
             done=True,
-            reward=_clamp(final_score),
+            reward=final_score,
             email_id="",
             email_subject="",
             email_from="",
@@ -828,6 +831,6 @@ class EmailTriageEnvironment:
             task_id=self._state.task_id,
             inbox_remaining=0,
             total_emails=self._state.total_emails,
-            score_so_far=_clamp(final_score),
+            score_so_far=final_score,
             feedback=message,
         )
