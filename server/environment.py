@@ -25,10 +25,14 @@ from models import EmailTriageAction, EmailTriageObservation, EmailTriageState
 
 
 def _clamp(val: float) -> float:
-    """Clamp score strictly between 0 and 1 (0.01 to 0.99)."""
+    """Clamp and linearly map score from [0, 1] to strictly between 0 and 1 (0.1 to 0.9)."""
     if val is None:
-        return 0.01
-    return max(0.01, min(0.99, float(val)))
+        return 0.1
+    v = float(val)
+    # Ensure v is in [0, 1] before mapping
+    v = max(0.0, min(1.0, v))
+    # Linearly map [0, 1] to [0.1, 0.9]
+    return 0.1 + (v * 0.8)
 
 
 # ---------------------------------------------------------------------------

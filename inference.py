@@ -133,11 +133,11 @@ def run_task(client: OpenAI, task_id: int, model_name: str, env_base_url: str, m
                     step_resp.raise_for_status()
                     payload = step_resp.json() or {}
                     observation = payload.get("observation", {})
-                    # Ensure reward is strictly between 0 and 1 (0.01 to 0.99)
-                    env_reward = payload.get("reward", 0.01)
+                    # Ensure reward is strictly between 0 and 1 (0.1 to 0.9)
+                    env_reward = payload.get("reward", 0.1)
                     if env_reward is None:
-                        env_reward = 0.01
-                    reward = max(0.01, min(0.99, float(env_reward)))
+                        env_reward = 0.1
+                    reward = max(0.1, min(0.9, float(env_reward)))
                     done = bool(payload.get("done", False))
                 except Exception as e:
                     step_error = str(e).replace('\n', ' ').replace('"', "'")
@@ -147,7 +147,7 @@ def run_task(client: OpenAI, task_id: int, model_name: str, env_base_url: str, m
                 # Format action for STEP line
                 action_str = json.dumps(action_data, separators=(',', ':')).replace("\n", "")
                 d_str = "true" if done else "false"
-                print(f"[STEP] step={step_count} action={action_str} reward={reward:.2f} done={d_str} error={step_error}")
+                print(f"[STEP] step={step_count} action={action_str} reward={reward:.4f} done={d_str} error={step_error}")
 
                 if done:
                     # Success criteria: final score should be meaningful
@@ -157,8 +157,8 @@ def run_task(client: OpenAI, task_id: int, model_name: str, env_base_url: str, m
         pass
     finally:
         # Final safety for END metrics
-        r_list = step_rewards if step_rewards else [0.01]
-        rewards_str = ",".join([f"{r:.2f}" for r in r_list])
+        r_list = step_rewards if step_rewards else [0.1]
+        rewards_str = ",".join([f"{r:.4f}" for r in r_list])
         s_str = "true" if success else "false"
         print(f"[END] success={s_str} steps={len(step_rewards)} rewards={rewards_str}")
 
@@ -183,7 +183,7 @@ def main() -> None:
         except Exception:
             # Satisfy start/end if init fails
             print(f"[START] task=1 env=email_triage_env model={model_name}")
-            print(f"[END] success=false steps=0 rewards=0.01")
+            print(f"[END] success=false steps=0 rewards=0.1")
             return
 
         # Email Triage Tasks are 1, 2, 3
